@@ -22,6 +22,8 @@ MainWindow::MainWindow(QWidget *parent)
     //Инициализация вектора
     city_case = new QVector<int>;
     country_case = new QVector<int>;
+    countryName = "Russia";
+    cityName = "Moscow";
 }
 
 MainWindow::~MainWindow()
@@ -33,8 +35,8 @@ void MainWindow::on_pb_request_clicked()
 {
     //com->getCountries();
     com->getSummary();
-    com->getCountryInfo("Russia",ui->dateEdit->text());
-    com->getCityInfo("Moscow",ui->dateEdit->text());
+    com->getCountryInfo(countryName,ui->dateEdit->text());
+    com->getCityInfo(cityName,ui->dateEdit->text());
 }
 
 //Слот получения списка стран
@@ -95,7 +97,7 @@ void MainWindow::resp_country(QByteArray resp)
          for (int i=0;i<global.size();i++) {
              QJsonObject country = global[i].toObject();
              ui->textEdit->setText(country.value("confirmed").toString());
-             country_issues+=country.value("confirmed_diff").toInt();
+             country_issues+=country.value("confirmed").toInt();
          }
          if(plot){//Добавление данных для графика
                 country_case->append(country_issues);
@@ -139,8 +141,8 @@ void MainWindow::t_tick(){
     if(dayID<daysN){//Проверка граничных условий
         if(!request){
             QDate date = date_start.addDays(dayID);
-            com->getCityInfo("Moscow",date.toString("yyyy-MM-dd"));
-            com->getCountryInfo("Russia",date.toString("yyyy-MM-dd"));
+            com->getCityInfo(cityName,date.toString("yyyy-MM-dd"));
+            com->getCountryInfo(countryName,date.toString("yyyy-MM-dd"));
             request = true;
             dayID++;
             int p = (int) dayID*100.0/daysN;
@@ -191,4 +193,10 @@ void MainWindow::on_pushButton_plot_clicked()
     //Сброс строки прогресса
     ui->progressBar->setValue(0);
     ui->progressBar->setEnabled(true);
+}
+
+void MainWindow::on_comboBox_currentIndexChanged(const QString &arg1)
+{
+    //Сохранение названия страны
+    countryName = arg1;
 }

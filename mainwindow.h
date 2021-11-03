@@ -28,6 +28,8 @@ class MainWindow : public QMainWindow
     QVector<int> *country_case;
     bool plot;//Флаг построения
     bool request;//Флаг на текущий запрос
+    QString countryName;//Название страны
+    QString cityName;//Название города
 
 public:
     MainWindow(QWidget *parent = nullptr);
@@ -47,6 +49,8 @@ private slots:
     void t_tick();
     void on_pushButton_plot_clicked();
 
+
+    void on_comboBox_currentIndexChanged(const QString &arg1);
 
 private:
     Ui::MainWindow *ui;
