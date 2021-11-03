@@ -24,6 +24,9 @@ MainWindow::MainWindow(QWidget *parent)
     country_case = new QVector<int>;
     countryName = "Russia";
     cityName = "Moscow";
+    //Заполнение списка стран
+    ui->comboBox->clear();
+    com->getCountries();
 }
 
 MainWindow::~MainWindow()
@@ -47,10 +50,13 @@ void MainWindow::resp_countries(QByteArray resp)
 
       // Забираем из документа корневой объект
       QJsonObject root = document.object();
-      /* Находим объект "departament", который располагается самым первым в корневом объекте.
-       * С помощью метода keys() получаем список всех объектов и по первому индексу
-       * забираем название объекта, по которому получим его значение
-       * */
+      if(root.keys().size()>0 && root["data"]!=NULL){
+            QJsonArray countries = root["data"].toArray();
+            foreach(QJsonValue country,countries){
+                QJsonObject c = country.toObject();
+                ui->comboBox->addItem(c["name"].toString());
+            }
+       }
       ui->textEdit->clear();
       //ui->textEdit->append(root.keys().at(0) + ": " + root.value(root.keys().at(0)).toString());
       ui->textEdit->setText(document.toJson(QJsonDocument::Indented));
@@ -164,7 +170,7 @@ void MainWindow::t_tick(){
             series_2->append(point);
         }
         series->setName("Москва");
-        series_2->setName("Россия");
+        series_2->setName(countryName);
         chart->addSeries(series);
         chart->addSeries(series_2);
         //chart->legend()->hide();
