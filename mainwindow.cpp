@@ -227,9 +227,27 @@ void MainWindow::displayCoutries(QByteArray text){
             QJsonArray countries = root["data"].toArray();
             foreach(QJsonValue country,countries){
                 QJsonObject c = country.toObject();
+                //Выпадающий список на вкладке 1
                 ui->comboBox->addItem(c["name"].toString());
+                //Дерево регионов на вкладке 2
+                QStringList strList = QStringList();
+                strList.append(c["name"].toString());
+                QTreeWidgetItem *item = new QTreeWidgetItem(strList);
+                item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+                ui->treeWidget->addTopLevelItem(item);
             }
        }
       ui->textEdit->clear();
       ui->textEdit->setText(document.toJson(QJsonDocument::Indented));
+}
+
+void MainWindow::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
+{
+    QList<QTreeWidgetItem *> selList = ui->treeWidget->selectedItems();
+    reqList.clear();//Очистка списка запросов
+    foreach(QTreeWidgetItem *item,selList){
+        QString str = item->text(0);
+        qDebug() << str;
+        reqList.append(str);
+    }
 }

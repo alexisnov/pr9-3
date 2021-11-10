@@ -11,6 +11,7 @@
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QLegend>
 #include <QTimer>
+#include <QTreeWidgetItem>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -30,6 +31,7 @@ class MainWindow : public QMainWindow
     bool request;//Флаг на текущий запрос
     QString countryName;//Название страны
     QString cityName;//Название города
+    QStringList reqList;//Список запросов
 
 public:
     MainWindow(QWidget *parent = nullptr);
@@ -51,6 +53,8 @@ private slots:
 
 
     void on_comboBox_currentIndexChanged(const QString &arg1);
+
+    void on_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
 
 private:
     Ui::MainWindow *ui;
