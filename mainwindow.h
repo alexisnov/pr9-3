@@ -63,5 +63,16 @@ private:
     QChart *chart;
     QLineSeries *series;//Ряд данных
     QChartView *chartView;//Виджет
+    //Файлы
+    QFile *countriesFile;
+    /**
+      * @brief Загрузка списка стран
+      */
+    void loadCountries();
+    /**
+      * @brief Отображение списка стран
+      * @param[in] QByteArray - строка JSON
+      */
+    void displayCoutries(QByteArray);
 };
 #endif // MAINWINDOW_H

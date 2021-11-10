@@ -25,8 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
     countryName = "Russia";
     cityName = "Moscow";
     //Заполнение списка стран
-    ui->comboBox->clear();
-    com->getCountries();
+    loadCountries();
 }
 
 MainWindow::~MainWindow()
@@ -45,21 +44,14 @@ void MainWindow::on_pb_request_clicked()
 //Слот получения списка стран
 void MainWindow::resp_countries(QByteArray resp)
 {
-    // То создаём объект Json Document, считав в него все данные из ответа
-      QJsonDocument document = QJsonDocument::fromJson(resp);
-
-      // Забираем из документа корневой объект
-      QJsonObject root = document.object();
-      if(root.keys().size()>0 && root["data"]!=NULL){
-            QJsonArray countries = root["data"].toArray();
-            foreach(QJsonValue country,countries){
-                QJsonObject c = country.toObject();
-                ui->comboBox->addItem(c["name"].toString());
-            }
-       }
-      ui->textEdit->clear();
-      //ui->textEdit->append(root.keys().at(0) + ": " + root.value(root.keys().at(0)).toString());
-      ui->textEdit->setText(document.toJson(QJsonDocument::Indented));
+    displayCoutries(resp);
+    //Запись в файл
+    if(!countriesFile->open(QIODevice::WriteOnly)){
+        qDebug()<<"Ошибка записи в файл";
+        return;
+    }
+    countriesFile->write(resp);
+    countriesFile->close();
 }
 
 //Слот получения сводки
@@ -205,4 +197,39 @@ void MainWindow::on_comboBox_currentIndexChanged(const QString &arg1)
 {
     //Сохранение названия страны
     countryName = arg1;
+}
+
+void MainWindow::loadCountries(){
+    //Проверка на существование файла
+    countriesFile = new QFile("regions.json");
+    if(countriesFile->exists()){
+        //Чтение информации из файла
+        if(!countriesFile->open(QIODevice::ReadOnly)){
+            qDebug() << "Ошибка чтения файла";
+            return;
+        }
+        displayCoutries(countriesFile->readAll());
+    }else{
+        //Запрос к серверу
+        com->getCountries();
+    }
+}
+
+void MainWindow::displayCoutries(QByteArray text){
+    //Очистка списка
+    ui->comboBox->clear();
+    // создаём объект Json Document, считав в него все данные из ответа
+      QJsonDocument document = QJsonDocument::fromJson(text);
+
+      // Забираем из документа корневой объект
+      QJsonObject root = document.object();
+      if(root.keys().size()>0 && root["data"]!=NULL){
+            QJsonArray countries = root["data"].toArray();
+            foreach(QJsonValue country,countries){
+                QJsonObject c = country.toObject();
+                ui->comboBox->addItem(c["name"].toString());
+            }
+       }
+      ui->textEdit->clear();
+      ui->textEdit->setText(document.toJson(QJsonDocument::Indented));
 }
